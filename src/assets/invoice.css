@@ -1,6 +1,4 @@
-/* invoice.css */
 
-/* Container styling */
 .invoice-form {
     max-width: 800px;
     margin: auto;
@@ -10,7 +8,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Header */
 .invoice-form h1 {
     font-size: 1.8em;
     color: #1a2a6c;
@@ -18,7 +15,6 @@
     margin-bottom: 20px;
 }
 
-/* Input and label styling */
 .invoice-form label {
     display: block;
     font-weight: bold;
@@ -44,7 +40,6 @@
     border-color: #1a2a6c;
 }
 
-/* Date fields */
 .invoice-form .date-field {
     display: flex;
     justify-content: space-between;
@@ -55,7 +50,6 @@
     width: 48%;
 }
 
-/* Button styling */
 button {
     background-color: #1a2a6c;
     color: #ffffff;
@@ -72,14 +66,12 @@ button:hover {
     background-color: #143a6c;
 }
 
-/* Button container */
 .button-group {
     display: flex;
     justify-content: flex-end;
     margin-top: 20px;
 }
 
-/* Responsive Design */
 @media (max-width: 600px) {
     .invoice-form {
         width: 100%;

@@ -1,16 +1,11 @@
 <template>
-  <div id="app">
-    <CreateInvoice />
-  </div>
+  <router-view></router-view>
 </template>
 
 <script>
-import CreateInvoice from './components/CreateInvoice.vue';
-
 export default {
-  components: {
-    CreateInvoice,
-  },
+  name: 'App'
 };
 </script>
+
 
