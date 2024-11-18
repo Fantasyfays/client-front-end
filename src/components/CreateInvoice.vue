@@ -1,123 +1,282 @@
 <template>
   <div class="create-invoice">
-    <h2>Nieuwe Factuur Aanmaken</h2>
-    <form @submit.prevent="submitInvoice">
-      <input type="text" v-model="invoice.invoiceNumber" placeholder="Factuurnummer" required />
-      <input type="date" v-model="invoice.invoiceDate" placeholder="Factuurdatum" required />
-      <input type="date" v-model="invoice.dueDate" placeholder="Vervaldatum" required />
+    <h1>Factuur Aanmaken</h1>
+    <form @submit.prevent="createInvoice" class="invoice-form">
+      <fieldset>
+        <legend>Factuur Details</legend>
+        <div class="form-group">
+          <label for="description">Omschrijving</label>
+          <input
+              type="text"
+              id="description"
+              v-model="invoice.description"
+              placeholder="Omschrijving van de factuur"
+              required
+          />
+        </div>
+        <div class="form-group">
+          <label for="quantity">Aantal</label>
+          <input
+              type="number"
+              id="quantity"
+              v-model="invoice.quantity"
+              placeholder="Aantal"
+              required
+          />
+        </div>
+        <div class="form-group">
+          <label for="unitPrice">Prijs per stuk</label>
+          <input
+              type="number"
+              step="0.01"
+              id="unitPrice"
+              v-model="invoice.unitPrice"
+              placeholder="Prijs per stuk"
+              required
+          />
+        </div>
+        <div class="form-group">
+          <label for="invoiceDate">Factuurdatum</label>
+          <input
+              type="date"
+              id="invoiceDate"
+              v-model="invoice.invoiceDate"
+              required
+          />
+        </div>
+        <div class="form-group">
+          <label for="dueDate">Vervaldatum</label>
+          <input
+              type="date"
+              id="dueDate"
+              v-model="invoice.dueDate"
+              required
+          />
+        </div>
+      </fieldset>
 
-      <input type="text" v-model="invoice.customerName" placeholder="Klantnaam" required />
-      <input type="text" v-model="invoice.customerAddress" placeholder="Klantadres" required />
-      <input type="email" v-model="invoice.customerEmail" placeholder="Klant e-mail" required />
-      <input type="text" v-model="invoice.customerPhone" placeholder="Klant telefoonnummer" required />
+      <fieldset>
+        <legend>Ontvanger Details</legend>
+        <div class="form-group">
+          <label for="recipientName">Naam Ontvanger</label>
+          <input
+              type="text"
+              id="recipientName"
+              v-model="invoice.recipientName"
+              placeholder="Naam van de ontvanger"
+              required
+          />
+        </div>
+        <div class="form-group">
+          <label for="recipientCompany">Bedrijf Ontvanger</label>
+          <input
+              type="text"
+              id="recipientCompany"
+              v-model="invoice.recipientCompany"
+              placeholder="Naam van het bedrijf"
+              required
+          />
+        </div>
+        <div class="form-group">
+          <label for="recipientAddress">Adres Ontvanger</label>
+          <input
+              type="text"
+              id="recipientAddress"
+              v-model="invoice.recipientAddress"
+              placeholder="Adres van de ontvanger"
+              required
+          />
+        </div>
+        <div class="form-group">
+          <label for="recipientEmail">Email Ontvanger</label>
+          <input
+              type="email"
+              id="recipientEmail"
+              v-model="invoice.recipientEmail"
+              placeholder="Email van de ontvanger"
+              required
+          />
+        </div>
+      </fieldset>
 
-      <input type="text" v-model="invoice.companyName" placeholder="Bedrijfsnaam" required />
-      <input type="text" v-model="invoice.companyAddress" placeholder="Bedrijfsadres" required />
-      <input type="text" v-model="invoice.companyPhone" placeholder="Bedrijf telefoonnummer" required />
-      <input type="text" v-model="invoice.companyTaxId" placeholder="BTW-nummer" required />
+      <fieldset>
+        <legend>Betalingsgegevens</legend>
+        <div class="form-group">
+          <label for="paymentTerms">Betaalvoorwaarden</label>
+          <input
+              type="text"
+              id="paymentTerms"
+              v-model="invoice.paymentTerms"
+              placeholder="Betaalvoorwaarden"
+          />
+        </div>
+        <div class="form-group">
+          <label for="paymentCurrency">Betaalmunt</label>
+          <input
+              type="text"
+              id="paymentCurrency"
+              v-model="invoice.paymentCurrency"
+              placeholder="Betaalmunt (bijv. EUR)"
+          />
+        </div>
+      </fieldset>
 
-      <input type="number" v-model="invoice.subtotal" placeholder="Subtotaal" min="0" required />
-      <input type="number" v-model="invoice.tax" placeholder="Belasting" min="0" required />
-      <input type="number" v-model="invoice.totalAmount" placeholder="Totaalbedrag" min="0" required />
-
-      <input type="text" v-model="invoice.paymentTerms" placeholder="Betalingsvoorwaarden" />
-      <textarea v-model="invoice.notes" placeholder="Opmerkingen"></textarea>
-
-      <h3>Factuuritems</h3>
-      <button type="button" @click="addItem">Item toevoegen</button>
-      <div v-for="(item, index) in invoice.items" :key="index">
-        <InvoiceItem :item="item" @remove-item="removeItem(index)" />
-      </div>
-
-      <button type="submit">Factuur Opslaan</button>
+      <button type="submit" class="submit-button">Factuur Aanmaken</button>
     </form>
   </div>
 </template>
 
 <script>
-import InvoiceItem from '@/components/InvoiceItem.vue';
-import { createInvoice } from '@/services/invoiceService';
+import axios from "axios";
 
 export default {
-  components: {
-    InvoiceItem,
-  },
+  name: "CreateInvoice",
   data() {
     return {
       invoice: {
-        invoiceNumber: '',
-        invoiceDate: '',
-        dueDate: '',
-        customerName: '',
-        customerAddress: '',
-        customerEmail: '',
-        customerPhone: '',
-        companyName: '',
-        companyAddress: '',
-        companyPhone: '',
-        companyTaxId: '',
-        subtotal: 0,
-        tax: 0,
-        totalAmount: 0,
-        paymentTerms: '',
-        notes: '',
-        items: [],
+        description: "",
+        quantity: 0,
+        unitPrice: 0.0,
+        invoiceDate: "",
+        dueDate: "",
+        taxRate: 0.0,
+        recipientName: "",
+        recipientCompany: "",
+        recipientAddress: "",
+        recipientEmail: "",
+        paymentTerms: "",
+        paymentCurrency: "EUR",
       },
+      clientId: null,
     };
   },
   methods: {
-    addItem() {
-      this.invoice.items.push({description: '', quantity: 1, unitPrice: 0});
-    },
-    removeItem(index) {
-      this.invoice.items.splice(index, 1);
-    },
-    async submitInvoice() {
-      if (this.validateForm()) {
-        try {
-          await createInvoice(this.invoice);
-          alert('Factuur succesvol aangemaakt!');
-          this.resetForm();
-        } catch (error) {
-          console.error(error);
-          alert('Er is een fout opgetreden bij het aanmaken van de factuur.');
-        }
+    async fetchClientData() {
+      try {
+        const response = await axios.get(
+            `http://localhost:8080/api/v1/clients/${this.clientId}`
+        );
+        const client = response.data;
+
+        // Vul relevante velden automatisch in
+        this.invoice.paymentTerms = client.defaultPaymentTerms || "";
+      } catch (error) {
+        console.error("Error fetching client data:", error);
       }
     },
-    validateForm() {
-      if (this.invoice.items.length === 0) {
-        alert('Een factuur moet minimaal één item bevatten.');
-        return false;
+    async createInvoice() {
+      try {
+        await axios.post(
+            `http://localhost:8080/api/v1/invoices/create?clientId=${this.clientId}`,
+            this.invoice
+        );
+        alert("Factuur succesvol aangemaakt!");
+        this.$router.push("/");
+      } catch (error) {
+        console.error("Fout bij het aanmaken van de factuur:", error);
+        alert("Er is iets misgegaan bij het aanmaken van de factuur.");
       }
-      for (let item of this.invoice.items) {
-        if (item.quantity <= 0 || item.unitPrice < 0) {
-          alert('Elk item moet een positieve hoeveelheid en een niet-negatieve eenheidsprijs hebben.');
-          return false;
-        }
-      }
-      return true;
     },
-    resetForm() {
-      this.invoice = {
-        invoiceNumber: '',
-        invoiceDate: '',
-        dueDate: '',
-        customerName: '',
-        customerAddress: '',
-        customerEmail: '',
-        customerPhone: '',
-        companyName: '',
-        companyAddress: '',
-        companyPhone: '',
-        companyTaxId: '',
-        subtotal: 0,
-        tax: 0,
-        totalAmount: 0,
-        paymentTerms: '',
-        notes: '',
-        items: [],
-      };
-    },
+  },
+  mounted() {
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (loggedInUser) {
+      this.clientId = loggedInUser.id;
+      this.fetchClientData();
+    } else {
+      this.$router.push("/login");
+    }
   },
 };
 </script>
+
+<style scoped>
+.create-invoice {
+  background-color: #001f3f;
+  color: #fcbf49;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 700px;
+  margin: 40px auto;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.invoice-form {
+  display: flex;
+  flex-direction: column;
+}
+
+fieldset {
+  border: 1px solid #fcbf49;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+legend {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 0 10px;
+  color: #fcbf49;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: border-color 0.3s;
+}
+
+input:focus {
+  border-color: #fcbf49;
+  outline: none;
+}
+
+.submit-button {
+  background-color: #fcbf49;
+  color: #001f3f;
+  font-size: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.submit-button:hover {
+  background-color: #ffc107;
+  transform: scale(1.02);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

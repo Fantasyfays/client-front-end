@@ -1,13 +1,51 @@
-import Vue from 'vue';
-import Router from 'vue-router';
-import Home from '@/views/Home.vue';
-import InvoiceView from '@/views/InvoiceView.vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import Home from '../components/Home.vue';
+import Login from '../components/Login.vue';
+import CreateInvoice from '../components/CreateInvoice.vue';
+import InvoiceList from '../components/InvoiceList.vue'; // Correct geïmporteerd
 
-Vue.use(Router);
+// Simpele functie om inlogstatus te controleren
+function isAuthenticated() {
+    return !!localStorage.getItem('loggedInUser');
+}
 
-export default new Router({
-    routes: [
-        { path: '/', component: Home },
-        { path: '/invoice', component: InvoiceView },
-    ],
+const routes = [
+    {
+        path: '/',
+        name: 'Home',
+        component: Home,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/login',
+        name: 'Login',
+        component: Login,
+    },
+    {
+        path: '/create-invoice',
+        name: 'CreateInvoice',
+        component: CreateInvoice,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/invoices',
+        name: 'InvoiceList',
+        component: InvoiceList, // Correct gebruikt
+        meta: { requiresAuth: true },
+    },
+];
+
+const router = createRouter({
+    history: createWebHistory(),
+    routes,
 });
+
+router.beforeEach((to, from, next) => {
+    if (to.meta.requiresAuth && !isAuthenticated()) {
+        next('/login');
+    } else {
+        next();
+    }
+});
+
+export default router;
